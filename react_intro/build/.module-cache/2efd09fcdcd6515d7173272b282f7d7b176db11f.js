@@ -5,5 +5,3 @@ var Button = React.createClass({displayName: "Button",
     );
   }
 });
-
-React.render(React.createElement(Button, null), document.getElementById("root"));
