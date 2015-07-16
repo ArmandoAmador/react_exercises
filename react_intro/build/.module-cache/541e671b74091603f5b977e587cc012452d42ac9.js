@@ -24,7 +24,7 @@ var Main = React.createClass({displayName: "Main",
     return {counter: 0};
   },
   handleClick: function(increment) {
-    this.setState({ counter: this.state.counter + increment });
+    this.setState({ counter: this.state.counter + 1 });
   },
   render: function() {
     return (
