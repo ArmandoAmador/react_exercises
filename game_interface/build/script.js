@@ -19,13 +19,35 @@ var StarsFrame = React.createClass({displayName: "StarsFrame",
 
 var ButtonFrame = React.createClass({displayName: "ButtonFrame",
   render: function() {
-    var disabled;
-    disabled = (this.props.selectedNumbers.length === 0);
+    var disabled, button, correct = this.props.correct;
+
+    switch(correct) {
+      case true:
+        button = (
+          React.createElement("button", {className: "btn btn-success btn-lg"}, 
+            React.createElement("span", {className: "glyphicon glyphicon-ok"})
+          )
+        );
+        break;
+      case false:
+        button = (
+          React.createElement("button", {className: "btn btn-danger btn-lg"}, 
+            React.createElement("span", {className: "glyphicon glyphicon-remove"})
+          )
+        );
+        break;
+      default:
+        disabled = (this.props.selectedNumbers.length === 0);
+        button = (
+          React.createElement("button", {className: "btn btn-primary btn-lg", disabled: disabled, 
+                  onClick: this.props.checkAnswer}, 
+            "="
+          )
+        );
+    }
     return (
       React.createElement("div", {id: "button-frame"}, 
-        React.createElement("button", {className: "btn btn-primary", disabled: disabled}, 
-          "="
-        )
+        button
       )
     );
   }
@@ -78,7 +100,8 @@ var NumbersFrame = React.createClass({displayName: "NumbersFrame",
 var Game = React.createClass({displayName: "Game",
   getInitialState: function() {
     return { numberOfStars: Math.floor(Math.random()*9) + 1,
-             selectedNumbers: [] };
+             selectedNumbers: [],
+             correct: null };
   },
   selectNumber: function(clickedNumber) {
     if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
@@ -95,16 +118,28 @@ var Game = React.createClass({displayName: "Game",
 
     this.setState({ selectedNumbers: selectedNumbers });
   },
+  sumOfSelectedNumbers: function() {
+    return this.state.selectedNumbers.reduce(function(p,n) {
+      return p+n;
+    }, 0);
+  },
+  checkAnswer: function() {
+    var correct = (this.state.numberOfStars === this.sumOfSelectedNumbers());
+    this.setState({ correct: correct });
+  },
   render: function() {
     var selectedNumbers = this.state.selectedNumbers,
         numberOfStars = this.state.numberOfStars;
+        correct = this.state.correct;
     return (
       React.createElement("div", {id: "game"}, 
         React.createElement("h2", null, "Play Nine"), 
         React.createElement("hr", null), 
         React.createElement("div", {className: "clearfix"}, 
           React.createElement(StarsFrame, {numberOfStars: numberOfStars}), 
-          React.createElement(ButtonFrame, {selectedNumbers: selectedNumbers}), 
+          React.createElement(ButtonFrame, {selectedNumbers: selectedNumbers, 
+                       correct: correct, 
+                       checkAnswer: this.checkAnswer}), 
           React.createElement(AnswerFrame, {selectedNumbers: selectedNumbers, 
                        unselectNumber: this.unselectNumber})
         ), 
