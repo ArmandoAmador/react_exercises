@@ -19,9 +19,13 @@ var StarsFrame = React.createClass({displayName: "StarsFrame",
 
 var ButtonFrame = React.createClass({displayName: "ButtonFrame",
   render: function() {
+    var disabled;
+    disabled = (this.props.selectedNumbers.length === 0);
     return (
       React.createElement("div", {id: "button-frame"}, 
-        React.createElement("button", {className: "btn btn-primary"}, "=")
+        React.createElement("button", {className: "btn btn-primary", disabled: disabled}, 
+          "="
+        )
       )
     );
   }
@@ -92,18 +96,20 @@ var Game = React.createClass({displayName: "Game",
     this.setState({ selectedNumbers: selectedNumbers });
   },
   render: function() {
+    var selectedNumbers = this.state.selectedNumbers,
+        numberOfStars = this.state.numberOfStars;
     return (
       React.createElement("div", {id: "game"}, 
         React.createElement("h2", null, "Play Nine"), 
         React.createElement("hr", null), 
         React.createElement("div", {className: "clearfix"}, 
-          React.createElement(StarsFrame, {numberOfStars: this.state.numberOfStars}), 
-          React.createElement(ButtonFrame, null), 
-          React.createElement(AnswerFrame, {selectedNumbers: this.state.selectedNumbers, 
+          React.createElement(StarsFrame, {numberOfStars: numberOfStars}), 
+          React.createElement(ButtonFrame, {selectedNumbers: selectedNumbers}), 
+          React.createElement(AnswerFrame, {selectedNumbers: selectedNumbers, 
                        unselectNumber: this.unselectNumber})
         ), 
 
-        React.createElement(NumbersFrame, {selectedNumbers: this.state.selectedNumbers, 
+        React.createElement(NumbersFrame, {selectedNumbers: selectedNumbers, 
                       selectNumber: this.selectNumber})
 
       )
