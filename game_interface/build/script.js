@@ -49,12 +49,17 @@ var ButtonFrame = React.createClass({displayName: "ButtonFrame",
 
     return (
       React.createElement("div", {id: "button-frame"}, 
-        button
+        button, 
+        React.createElement("br", null), React.createElement("br", null), 
+        React.createElement("button", {className: "btn btn-warning btn-xs", onClick: this.props.redraw}, 
+          React.createElement("span", {className: "glyphicon glyphicon-refresh"}), 
+          " ", 
+          this.props.redraws
+        )
       )
     );
   }
 });
-
 
 var AnswerFrame = React.createClass({displayName: "AnswerFrame",
   render: function() {
@@ -83,7 +88,8 @@ var NumbersFrame = React.createClass({displayName: "NumbersFrame",
         selectNumber = this.props.selectNumber,
         usedNumbers = this.props.usedNumbers,
         selectedNumbers = this.props.selectedNumbers;
-    for (var i = 0; i <= 9; i++) {
+
+    for (var i = 1; i <= 9; i++) {
       className = "number selected-" + (selectedNumbers.indexOf(i)>=0);
       className += " used-" + (usedNumbers.indexOf(i)>=0);
       numbers.push(
@@ -107,6 +113,7 @@ var Game = React.createClass({displayName: "Game",
     return { numberOfStars: Math.floor(Math.random()*9) + 1,
              selectedNumbers: [],
              usedNumbers: [],
+             redraws: 5,
              correct: null };
   },
   selectNumber: function(clickedNumber) {
@@ -143,10 +150,21 @@ var Game = React.createClass({displayName: "Game",
       numberOfStars: Math.floor(Math.random()*9) + 1
     });
   },
+  redraw: function() {
+    if (this.state.redraws > 0) {
+      this.setState({
+        numberOfStars: Math.floor(Math.random()*9) + 1,
+        correct: null,
+        selectedNumbers: [],
+        redraws: this.state.redraws - 1
+      });
+    }
+  },
   render: function() {
     var selectedNumbers = this.state.selectedNumbers,
         usedNumbers = this.state.usedNumbers,
         numberOfStars = this.state.numberOfStars,
+        redraws = this.state.redraws,
         correct = this.state.correct;
     return (
       React.createElement("div", {id: "game"}, 
@@ -156,8 +174,10 @@ var Game = React.createClass({displayName: "Game",
           React.createElement(StarsFrame, {numberOfStars: numberOfStars}), 
           React.createElement(ButtonFrame, {selectedNumbers: selectedNumbers, 
                        correct: correct, 
+                       redraws: redraws, 
                        checkAnswer: this.checkAnswer, 
-                       acceptAnswer: this.acceptAnswer}), 
+                       acceptAnswer: this.acceptAnswer, 
+                       redraw: this.redraw}), 
           React.createElement(AnswerFrame, {selectedNumbers: selectedNumbers, 
                        unselectNumber: this.unselectNumber})
         ), 

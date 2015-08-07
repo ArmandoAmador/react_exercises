@@ -50,11 +50,16 @@ var ButtonFrame = React.createClass({
     return (
       <div id="button-frame">
         {button}
+        <br /><br />
+        <button className="btn btn-warning btn-xs" onClick={this.props.redraw}>
+          <span className="glyphicon glyphicon-refresh"></span>
+          &nbsp;
+          {this.props.redraws}
+        </button>
       </div>
     );
   }
 });
-
 
 var AnswerFrame = React.createClass({
   render: function() {
@@ -83,7 +88,8 @@ var NumbersFrame = React.createClass({
         selectNumber = this.props.selectNumber,
         usedNumbers = this.props.usedNumbers,
         selectedNumbers = this.props.selectedNumbers;
-    for (var i = 0; i <= 9; i++) {
+
+    for (var i = 1; i <= 9; i++) {
       className = "number selected-" + (selectedNumbers.indexOf(i)>=0);
       className += " used-" + (usedNumbers.indexOf(i)>=0);
       numbers.push(
@@ -107,6 +113,7 @@ var Game = React.createClass({
     return { numberOfStars: Math.floor(Math.random()*9) + 1,
              selectedNumbers: [],
              usedNumbers: [],
+             redraws: 5,
              correct: null };
   },
   selectNumber: function(clickedNumber) {
@@ -143,10 +150,21 @@ var Game = React.createClass({
       numberOfStars: Math.floor(Math.random()*9) + 1
     });
   },
+  redraw: function() {
+    if (this.state.redraws > 0) {
+      this.setState({
+        numberOfStars: Math.floor(Math.random()*9) + 1,
+        correct: null,
+        selectedNumbers: [],
+        redraws: this.state.redraws - 1
+      });
+    }
+  },
   render: function() {
     var selectedNumbers = this.state.selectedNumbers,
         usedNumbers = this.state.usedNumbers,
         numberOfStars = this.state.numberOfStars,
+        redraws = this.state.redraws,
         correct = this.state.correct;
     return (
       <div id="game">
@@ -156,8 +174,10 @@ var Game = React.createClass({
           <StarsFrame numberOfStars={numberOfStars}/>
           <ButtonFrame selectedNumbers={selectedNumbers}
                        correct={correct}
+                       redraws={redraws}
                        checkAnswer={this.checkAnswer}
-                       acceptAnswer={this.acceptAnswer}/>
+                       acceptAnswer={this.acceptAnswer}
+                       redraw={this.redraw} />
           <AnswerFrame selectedNumbers={selectedNumbers}
                        unselectNumber={this.unselectNumber} />
         </div>
