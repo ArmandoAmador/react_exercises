@@ -24,7 +24,8 @@ var ButtonFrame = React.createClass({displayName: "ButtonFrame",
     switch(correct) {
       case true:
         button = (
-          React.createElement("button", {className: "btn btn-success btn-lg"}, 
+          React.createElement("button", {className: "btn btn-success btn-lg", 
+                  onClick: this.props.acceptAnswer}, 
             React.createElement("span", {className: "glyphicon glyphicon-ok"})
           )
         );
@@ -45,6 +46,7 @@ var ButtonFrame = React.createClass({displayName: "ButtonFrame",
           )
         );
     }
+
     return (
       React.createElement("div", {id: "button-frame"}, 
         button
@@ -52,6 +54,7 @@ var ButtonFrame = React.createClass({displayName: "ButtonFrame",
     );
   }
 });
+
 
 var AnswerFrame = React.createClass({displayName: "AnswerFrame",
   render: function() {
@@ -78,9 +81,11 @@ var NumbersFrame = React.createClass({displayName: "NumbersFrame",
   render: function() {
     var numbers = [], className,
         selectNumber = this.props.selectNumber,
+        usedNumbers = this.props.usedNumbers,
         selectedNumbers = this.props.selectedNumbers;
     for (var i = 0; i <= 9; i++) {
       className = "number selected-" + (selectedNumbers.indexOf(i)>=0);
+      className += " used-" + (usedNumbers.indexOf(i)>=0);
       numbers.push(
         React.createElement("div", {className: className, onClick: selectNumber.bind(null, i)}, 
           i
@@ -101,12 +106,14 @@ var Game = React.createClass({displayName: "Game",
   getInitialState: function() {
     return { numberOfStars: Math.floor(Math.random()*9) + 1,
              selectedNumbers: [],
+             usedNumbers: [],
              correct: null };
   },
   selectNumber: function(clickedNumber) {
     if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
       this.setState(
-        { selectedNumbers: this.state.selectedNumbers.concat(clickedNumber) }
+        { selectedNumbers: this.state.selectedNumbers.concat(clickedNumber),
+          correct: null }
       );
     }
   },
@@ -116,7 +123,7 @@ var Game = React.createClass({displayName: "Game",
 
     selectedNumbers.splice(indexOfNumber, 1);
 
-    this.setState({ selectedNumbers: selectedNumbers });
+    this.setState({ selectedNumbers: selectedNumbers, correct: null });
   },
   sumOfSelectedNumbers: function() {
     return this.state.selectedNumbers.reduce(function(p,n) {
@@ -127,9 +134,19 @@ var Game = React.createClass({displayName: "Game",
     var correct = (this.state.numberOfStars === this.sumOfSelectedNumbers());
     this.setState({ correct: correct });
   },
+  acceptAnswer: function() {
+    var usedNumbers = this.state.usedNumbers.concat(this.state.selectedNumbers);
+    this.setState({
+      selectedNumbers: [],
+      usedNumbers: usedNumbers,
+      correct: null,
+      numberOfStars: Math.floor(Math.random()*9) + 1
+    });
+  },
   render: function() {
     var selectedNumbers = this.state.selectedNumbers,
-        numberOfStars = this.state.numberOfStars;
+        usedNumbers = this.state.usedNumbers,
+        numberOfStars = this.state.numberOfStars,
         correct = this.state.correct;
     return (
       React.createElement("div", {id: "game"}, 
@@ -139,12 +156,14 @@ var Game = React.createClass({displayName: "Game",
           React.createElement(StarsFrame, {numberOfStars: numberOfStars}), 
           React.createElement(ButtonFrame, {selectedNumbers: selectedNumbers, 
                        correct: correct, 
-                       checkAnswer: this.checkAnswer}), 
+                       checkAnswer: this.checkAnswer, 
+                       acceptAnswer: this.acceptAnswer}), 
           React.createElement(AnswerFrame, {selectedNumbers: selectedNumbers, 
                        unselectNumber: this.unselectNumber})
         ), 
 
         React.createElement(NumbersFrame, {selectedNumbers: selectedNumbers, 
+                      usedNumbers: usedNumbers, 
                       selectNumber: this.selectNumber})
 
       )
