@@ -51,7 +51,8 @@ var ButtonFrame = React.createClass({displayName: "ButtonFrame",
       React.createElement("div", {id: "button-frame"}, 
         button, 
         React.createElement("br", null), React.createElement("br", null), 
-        React.createElement("button", {className: "btn btn-warning btn-xs", onClick: this.props.redraw}, 
+        React.createElement("button", {className: "btn btn-warning btn-xs", onClick: this.props.redraw, 
+                disabled: this.props.redraws === 0}, 
           React.createElement("span", {className: "glyphicon glyphicon-refresh"}), 
           " ", 
           this.props.redraws
@@ -108,13 +109,27 @@ var NumbersFrame = React.createClass({displayName: "NumbersFrame",
   }
 });
 
+var DoneFrame = React.createClass({displayName: "DoneFrame",
+  render: function() {
+    return (
+      React.createElement("div", {className: "well text-center"}, 
+        React.createElement("h2", null, this.props.doneStatus)
+      )
+    );
+  }
+});
+
 var Game = React.createClass({displayName: "Game",
   getInitialState: function() {
-    return { numberOfStars: Math.floor(Math.random()*9) + 1,
+    return { numberOfStars: this.randomNumber(),
              selectedNumbers: [],
              usedNumbers: [],
              redraws: 5,
-             correct: null };
+             correct: null,
+             doneStatus: null };
+  },
+  randomNumber: function() {
+    return Math.floor(Math.random()*9) + 1;
   },
   selectNumber: function(clickedNumber) {
     if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
@@ -147,13 +162,13 @@ var Game = React.createClass({displayName: "Game",
       selectedNumbers: [],
       usedNumbers: usedNumbers,
       correct: null,
-      numberOfStars: Math.floor(Math.random()*9) + 1
+      numberOfStars: this.randomNumber()
     });
   },
   redraw: function() {
     if (this.state.redraws > 0) {
       this.setState({
-        numberOfStars: Math.floor(Math.random()*9) + 1,
+        numberOfStars: this.randomNumber(),
         correct: null,
         selectedNumbers: [],
         redraws: this.state.redraws - 1
@@ -165,7 +180,18 @@ var Game = React.createClass({displayName: "Game",
         usedNumbers = this.state.usedNumbers,
         numberOfStars = this.state.numberOfStars,
         redraws = this.state.redraws,
-        correct = this.state.correct;
+        correct = this.state.correct,
+        doneStatus = this.state.doneStatus,
+        bottomFrame;
+
+    if(doneStatus) {
+      bottomFrame = React.createElement(DoneFrame, {doneStatus: doneStatus});
+    } else {
+      bottomFrame = React.createElement(NumbersFrame, {selectedNumbers: selectedNumbers, 
+                    usedNumbers: usedNumbers, 
+                    selectNumber: this.selectNumber});
+    }
+
     return (
       React.createElement("div", {id: "game"}, 
         React.createElement("h2", null, "Play Nine"), 
@@ -182,9 +208,7 @@ var Game = React.createClass({displayName: "Game",
                        unselectNumber: this.unselectNumber})
         ), 
 
-        React.createElement(NumbersFrame, {selectedNumbers: selectedNumbers, 
-                      usedNumbers: usedNumbers, 
-                      selectNumber: this.selectNumber})
+        bottomFrame
 
       )
     );
